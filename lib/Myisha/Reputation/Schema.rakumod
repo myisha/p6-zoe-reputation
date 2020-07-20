@@ -1,7 +1,14 @@
 unit package Myisha::Reputation::Schema;
 use Red:ver<0.1.19>:api<2>;
 
-our $*RED-DB = database "Pg", :host<localhost>, :database<zoe>, :user<zoe>, :password<password>;
+red-defaults
+    "Pg",
+        host => "localhost",
+        database => "zoe",
+        user => "zoe",
+        password => "password",
+        :default,
+; 
 
 model Reputation is rw is export {
     has Int $.guild-id          is id;
