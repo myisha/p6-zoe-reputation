@@ -6,7 +6,7 @@ use Red:ver<0.1.19>:api<2>;
 
 my $discord-token = %*ENV<MYISHA_DISCORD_TOKEN> || die;
 
-my $*RED-DB = database "Pg", :host<localhost>, :database<zoe>, :user<zoe>, :password<password>;
+my $GLOBAL::RED-DB = database "Pg", :host<localhost>, :database<zoe>, :user<zoe>, :password<password>;
 my $*RED-DEBUG = True;
 
 Reputation.^create-table: :if-not-exists;
