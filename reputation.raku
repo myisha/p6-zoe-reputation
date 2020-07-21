@@ -10,7 +10,7 @@ my $*RED-DEBUG = True;
 Reputation.^create-table: :if-not-exists;
 
 sub MAIN($discord-token) {
-    my $discord = API::Discord.new(:$discord-token);
+    my $discord = API::Discord.new(:token($discord-token));
 
     $discord.connect;
     await $discord.ready;
