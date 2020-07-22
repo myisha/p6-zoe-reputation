@@ -1,5 +1,5 @@
 unit package Myisha::Reputation::Schema;
-use Red:ver<0.1.19>:api<2>;
+use Red:ver<0.1.21>:api<2>;
 
 model Reputation is table<reputation> is rw is export {
     has Int $.guild-id          is column{ :id, :type<bigint> }

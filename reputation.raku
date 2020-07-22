@@ -2,7 +2,7 @@
 
 use API::Discord;
 use Myisha::Reputation::Schema;
-use Red:ver<0.1.19>:api<2>;
+use Red:ver<0.1.21>:api<2>;
 
 my $discord-token = %*ENV<MYISHA_DISCORD_TOKEN> || die;
 
