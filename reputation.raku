@@ -5,7 +5,6 @@ use Myisha::Reputation::Schema;
 use Red:ver<0.1.24>:api<2>;
 use Redis::Async;
 
-my $discord-token = %*ENV<MYISHA_DISCORD_TOKEN> || die;
 
 my $GLOBAL::RED-DB = database "Pg", :host<localhost>, :database<zoe>, :user<zoe>, :password<password>;
 my $redis = Redis::Async.new('127.0.0.1:6379', timeout => 0);
