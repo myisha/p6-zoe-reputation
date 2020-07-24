@@ -29,16 +29,17 @@ sub MAIN($discord-token) {
                     my $reputator-user = $discord.get-user($reputator-id);
                     my $reputator = $guild.get-member($reputator-user);
 
-                    my $redis-key = $reputator-id ~ "-" ~ $reputee-id;
+                    my $redis-key = $guild.id ~ "-" ~ $reputator-id;
 
-                    if $reputator-id != $reputee-id and not $redis.exists($redis-key) and $redis.get($redis-key) ne $guild.id {
-                        $redis.setex($redis-key, 86400, $guild.id);
-                        my $rep = Reputation.^all.grep({ .guild-id == $guild.id && .user-id == $reputee-id });
-                        if $rep.elems {
-                            $rep.map(*.reputation += 1).save
+                    if $reputator-id != $reputee-id and not $redis.exists($redis-key) and $redis.get($redis-key) ne $reputee-id {
+                        $redis.setex($redis-key, 86400, $reputee-id);
+                        my $reputation = Reputation.^all.grep({ .guild-id == $guild.id && .user-id == $reputee-id });
+
+                        if $reputation.elems {
+                            $reputation.map(*.reputation += 1).save
                         }
                         else {
-                            $rep.create: :1reputation
+                            $reputation.create: :1reputation
                         }
 
                         $message.channel.send-message(
