@@ -31,7 +31,7 @@ sub MAIN($discord-token) {
 
                     my $redis-key = $reputator-id ~ "-" ~ $reputee-id;
 
-                    if $reputator-id != $reputee-id and not ($redis.exists($redis-key) and $redis.get($redis-key) ne $guild.id) {
+                    if $reputator-id != $reputee-id and not $redis.exists($redis-key) and $redis.get($redis-key) ne $guild.id {
                         $redis.setex($redis-key, 86400, $guild.id);
                         my $rep = Reputation.^all.grep({ .guild-id == $guild.id && .user-id == $reputee-id });
                         if $rep.elems {
