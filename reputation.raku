@@ -25,12 +25,10 @@ sub MAIN($discord-token) {
                     my $reputee = $guild.get-member($discord.get-user($/.Int));
                     my $reputator = $message.author;
 
-                    my $redis-key = $guild.id ~ "-" ~ $reputator.id;
+                    my $redis-key = $guild.id ~ "-" ~ $reputator.id ~ "-" ~ $reputee.id;
 
-                    if $reputator.id != $reputee.id and (
-                        not $redis.exists($redis-key)
-                        or  $redis.get($redis-key) != $reputee.id) {
-                        $redis.setex($redis-key, 86400, $reputee.id);
+                    if $reputator.id != $reputee.id and not $redis.exists($redis-key) {
+                        $redis.setex($redis-key, 86400, ~DateTime.now)
                         my $reputation = Reputation.^all.grep({ .guild-id == $guild.id && .user-id == $reputee-id });
 
                         if $reputation.elems {
