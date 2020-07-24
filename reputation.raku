@@ -31,27 +31,26 @@ sub MAIN($discord-token) {
 
                     my $redis-key = $reputator-id ~ "-" ~ $reputee-id;
 
-                    if $reputator-id != $reputee-id and $redis.exists($redis-key) and $redis.get($redis-key) ne $guild.id {
-                            $redis.setex($redis-key, 86400, $guild.id);
-                            my $rep = Reputation.^all.grep({ .guild-id == $guild.id && .user-id == $reputee-id });
-                            if $rep.elems {
-                                $rep.map(*.reputation += 1).save
-                            }
-                            else {
-                                $rep.create: :1reputation
-                            }
-
-                            $message.channel.send-message(
-                                embed => {
-                                    author => {
-                                        icon_url => $reputee-user.avatar-url,
-                                        name => "{$reputee.display-name}++"
-                                    },
-                                    color => 7324194,
-                                    description => "{$reputator.display-name} has given {$reputee.display-name} a reputation point!"
-                                }
-                            );
+                    if $reputator-id != $reputee-id and not ($redis.exists($redis-key) and $redis.get($redis-key) ne $guild.id) {
+                        $redis.setex($redis-key, 86400, $guild.id);
+                        my $rep = Reputation.^all.grep({ .guild-id == $guild.id && .user-id == $reputee-id });
+                        if $rep.elems {
+                            $rep.map(*.reputation += 1).save
                         }
+                        else {
+                            $rep.create: :1reputation
+                        }
+
+                        $message.channel.send-message(
+                            embed => {
+                                author => {
+                                    icon_url => $reputee-user.avatar-url,
+                                    name => "{$reputee.display-name}++"
+                                },
+                                color => 7324194,
+                                description => "{$reputator.display-name} has given {$reputee.display-name} a reputation point!"
+                            }
+                        );
                     }
                 }
             }
