@@ -21,7 +21,7 @@ sub MAIN($discord-token) {
     react {
         whenever $discord.messages -> $message {
             given $message.content {
-                when $message.content ~~ / '<@' '!'? <(\d+)> '>++' / {
+                when $message.content ~~ / '<@' '!'? <(\d+)> '>' \s* '++' / {
                     my $guild = $message.channel.guild;
                     my $reputee-id = $/.Int; 
                     my $reputee-user = $discord.get-user($reputee-id);
