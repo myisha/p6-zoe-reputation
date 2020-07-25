@@ -5,7 +5,6 @@ use Myisha::Reputation::Schema;
 use Red:ver<0.1.24>:api<2>;
 use Redis::Async;
 
-
 my $GLOBAL::RED-DB = database "Pg", :host<localhost>, :database<zoe>, :user<zoe>, :password<password>;
 my $redis = Redis::Async.new('127.0.0.1:6379', timeout => 0);
 
@@ -20,16 +19,17 @@ sub MAIN($discord-token) {
     react {
         whenever $discord.messages -> $message {
             given $message.content {
-                when $message.content ~~ / '<@' '!'? <(\d+)> '>' \s* '++' / {
+                when $message.content ~~ / '<@' '!'? <(\d+)> '>' \s* '++' $/ {
                     my $guild = $message.channel.guild;
                     my $reputee = $guild.get-member($discord.get-user($/.Int));
-                    my $reputator = $message.author;
+                    my $reputee-user = $discord.get-user($/.Int);
+                    my $reputator = $guild.get-member($message.author);
 
-                    my $redis-key = $guild.id ~ "-" ~ $reputator.id ~ "-" ~ $reputee.id;
+                    my $redis-key = $guild.id ~ "-" ~ $reputator.user-id ~ "-" ~ $reputee.user-id;
 
-                    if $reputator.id != $reputee.id and not $redis.exists($redis-key) {
-                        $redis.setex($redis-key, 86400, ~DateTime.now)
-                        my $reputation = Reputation.^all.grep({ .guild-id == $guild.id && .user-id == $reputee-id });
+                    if $reputator.user-id != $reputee.user-id and not $redis.exists($redis-key) {
+                        $redis.setex($redis-key, 86400, DateTime.now);
+                        my $reputation = Reputation.^all.grep({ .guild-id == $guild.id && .user-id == $reputee.user-id });
 
                         if $reputation.elems {
                             $reputation.map(*.reputation += 1).save
