@@ -8,7 +8,9 @@ model Reputation is table<reputation> is rw is export {
     has DateTime $.last-updated is column{ :type<timestamptz> } = DateTime.now;
     method !update-time($_) is before-update { .last-updated = DateTime.now }
 
-    method leaderboard {}
+    method leaderboard(:$guild-id) {
+        self.^all.grep(*.guild-id == $guild-id).sort(-*.reputation).head: 10;
+    }
     method check {}
     method purge {}
 }

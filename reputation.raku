@@ -57,9 +57,14 @@ sub MAIN($discord-token) {
                                 },
                                 color => 14488339,
                                 description => "You can give {$reputee.display-name} reputation in {$hours} hours, {$mins} minutes and {$secs} seconds."
-                            }
                         );
                     }
+                }
+                when $message.content ~~ / '+leaderboard' $/ {
+                    my $guild-id = $message.channel.guild.id;
+                    my $leaderboard = Reputation.leaderboard: :guild-id($guild-id);
+                    
+                    $message.channel.send-message({$leaderboard});
                 }
             }
         }
