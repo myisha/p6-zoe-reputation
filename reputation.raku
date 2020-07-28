@@ -7,6 +7,7 @@ use Redis::Async;
 
 my $GLOBAL::RED-DB = database "Pg", :host<localhost>, :database<zoe>, :user<zoe>, :password<password>;
 my $redis = Redis::Async.new('127.0.0.1:6379', timeout => 0);
+my $*RED-DEBUG = True;
 
 Reputation.^create-table: :if-not-exists;
 
@@ -19,7 +20,7 @@ sub MAIN($discord-token) {
     react {
         whenever $discord.messages -> $message {
             given $message.content {
-                when $message.content ~~ / '<@' '!'? <(\d+)> '>' \s* '++' $/ {
+                when $message.content ~~ /^ '<@' '!'? <(\d+)> '>' \s* '++' $/ {
                     my $guild = $message.channel.guild;
                     my $reputee = $guild.get-member($discord.get-user($/.Int));
                     my $reputator = $guild.get-member($message.author);
@@ -61,10 +62,11 @@ sub MAIN($discord-token) {
                         );
                     }
                 }
-                when $message.content ~~ / '+leaderboard' $/ {
+                when $message.content ~~ /^ '+leaderboard' $/ {
                     my $guild-id = $message.channel.guild.id;
                     my $leaderboard = Reputation.leaderboard: :guild-id($guild-id);
-                    $message.channel.send-message($leaderboard);
+                    say $leaderboard.Seq.list;
+                    $message.channel.send-message("{$leaderboard.Seq.list}");
                 }
             }
         }
