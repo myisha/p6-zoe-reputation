@@ -11,6 +11,10 @@ model Reputation is table<reputation> is rw is export {
     method leaderboard(:$guild-id) {
         self.^all.grep(*.guild-id == $guild-id).sort(-*.reputation).head: 10;
     }
-    method check {}
+
+    method check(:$guild-id, :$user-id) {
+        self.^all.grep(*.guild-id == $guild-id && *.user-id == $user-id)[0];
+    }
+
     method purge {}
 }

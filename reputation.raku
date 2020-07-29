@@ -62,11 +62,25 @@ sub MAIN($discord-token) {
                         );
                     }
                 }
-                when $message.content ~~ /^ '+leaderboard' $/ {
+                when $message.content ~~ /^ '+rep' $/ {
+                    my $guild = $message.channel.guild;
+                    my $guild-id = $message.channel.guild.id;
+                    my $user-id = $message.author.id;
+                    my $reputation = Reputation.check: :guild-id($guild-id), :user-id($user-id);
+                    $message.channel.send-message(
+                        embed => {
+                            author => {
+                                icon_url => $message.author.avatar-url,
+                                name => "{$guild.get-member($message.author).display-name}"
+                            },
+                            color => 7324194,
+                            description => "{$guild.get-member($message.author).display-name} has {$reputation.reputation} reputation points."
+                        }
+                    );
+                }
+                when $message.content ~~ /^ '+rep leaderboard' $/ {
                     my $guild-id = $message.channel.guild.id;
                     my $leaderboard = Reputation.leaderboard: :guild-id($guild-id);
-                    say $leaderboard.Seq.list;
-                    $message.channel.send-message("{$leaderboard.Seq.list}");
                 }
             }
         }
