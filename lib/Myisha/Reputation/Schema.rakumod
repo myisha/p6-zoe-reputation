@@ -13,7 +13,7 @@ model Reputation is table<reputation> is rw is export {
     }
 
     method check(:$guild-id, :$user-id) {
-        self.^all.grep(*.guild-id == $guild-id && *.user-id == $user-id)[0];
+        self.^load(guild-id => $guild-id, user-id => $user-id);
     }
 
     method purge {}
