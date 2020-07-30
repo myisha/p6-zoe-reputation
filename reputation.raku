@@ -62,25 +62,24 @@ sub MAIN($discord-token) {
                         );
                     }
                 }
-                when $message.content ~~ /^ '+rep' $/ {
+                when $message.content ~~ m/^ "+rep" \s* ["<@" "!"? (\d+) ">"]? $/ {
                     my $guild = $message.channel.guild;
                     my $guild-id = $message.channel.guild.id;
-                    my $user-id = $message.author.id;
+                    my $user-id = ($0 ?? $0.Int !! $message.author.id);
+                    my $user = $guild.get-member($discord.get-user($user-id));
+
                     my $reputation = Reputation.check: :guild-id($guild-id), :user-id($user-id);
+
                     $message.channel.send-message(
                         embed => {
                             author => {
-                                icon_url => $message.author.avatar-url,
-                                name => "{$guild.get-member($message.author).display-name}"
+                                icon_url => $user.user.avatar-url,
+                                name => "{$user.display-name}"
                             },
                             color => 7324194,
-                            description => "{$guild.get-member($message.author).display-name} has {$reputation.reputation} reputation points."
+                            description => "{$user.display-name} has {$reputation.reputation} reputation points."
                         }
                     );
-                }
-                when $message.content ~~ /^ '+rep leaderboard' $/ {
-                    my $guild-id = $message.channel.guild.id;
-                    my $leaderboard = Reputation.leaderboard: :guild-id($guild-id);
                 }
             }
         }
