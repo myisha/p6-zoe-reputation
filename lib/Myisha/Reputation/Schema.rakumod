@@ -16,5 +16,7 @@ model Reputation is table<reputation> is rw is export {
         self.^load(guild-id => $guild-id, user-id => $user-id);
     }
 
-    method purge {}
+    method purge(:$guild-id, :$user-id) {
+        self.^delete(guild-id => $guild-id, user-id => $user-id);
+    }
 }

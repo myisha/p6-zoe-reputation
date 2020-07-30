@@ -1,6 +1,7 @@
 #!raku
 
 use API::Discord;
+use API::Discord::Permissions;
 use Myisha::Reputation::Schema;
 use Red:api<2>;
 use Redis::Async;
@@ -68,7 +69,8 @@ sub MAIN($discord-token) {
                     my $user-id = ($0 ?? $0.Int !! $message.author.id);
                     my $user = $guild.get-member($discord.get-user($user-id));
 
-                    my $reputation = Reputation.check: :guild-id($guild-id), :user-id($user-id);
+                    my $rep-query = Reputation.check: :guild-id($guild-id), :user-id($user-id);
+                    my $reputation = $rep-query ?? $rep-query.reputation !! 0;
 
                     $message.channel.send-message(
                         embed => {
@@ -77,9 +79,40 @@ sub MAIN($discord-token) {
                                 name => "{$user.display-name}"
                             },
                             color => 7324194,
-                            description => "{$user.display-name} has {$reputation.reputation} reputation points."
+                            description => "{$user.display-name} has {$reputation} reputation points."
                         }
                     );
+                }
+                when $message.content ~~ m/^ "+rep purge" \s "<@" "!"? <(\d+)> ">" $/ {
+                    my $guild = $message.channel.guild;
+                    my $user = $guild.get-member($discord.get-user($/.Int));
+
+                    if $guild.get-member($message.author).has-any-permission([ADMINISTRATOR]) {
+                        my $reputation = Reputation.check: :guild-id($guild.id), :user-id($user.user.id);
+                        $reputation.purge;
+
+                        $message.channel.send-message(
+                            embed => {
+                                author => {
+                                    icon_url => $user.user.avatar-url,
+                                    name => "{$user.display-name}"
+                                },
+                                color => 14991639,
+                                description => "{$guild.get-member($message.author).display-name} reset {$user.display-name}'s reputation."
+                            }
+                        );
+                    } else {
+                        $message.channel.send-message(
+                            embed => {
+                                author => {
+                                    icon_url => $user.user.avatar-url,
+                                    name => "Exception"
+                                },
+                                color => 14488339,
+                                description => "You don't have permission to reset {$user.display-name}'s reputation."                      
+                            }
+                        );
+                    }
                 }
             }
         }
