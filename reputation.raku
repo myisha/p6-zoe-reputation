@@ -2,13 +2,15 @@
 
 use API::Discord;
 use API::Discord::Permissions;
+use Myisha::Reputation::Command;
 use Myisha::Reputation::Schema;
 use Red:api<2>;
 use Redis::Async;
 
 my $GLOBAL::RED-DB = database "Pg", :host<localhost>, :database<zoe>, :user<zoe>, :password<password>;
-my $redis = Redis::Async.new('127.0.0.1:6379', timeout => 0);
-my $*RED-DEBUG = True;
+
+say my $redis = Redis::Async.new('127.0.0.1:6379');
+say $redis.select(3);
 
 Reputation.^create-table: :if-not-exists;
 
@@ -29,7 +31,7 @@ sub MAIN($discord-token) {
                     my $redis-key = $guild.id ~ "-" ~ $reputator.user.id ~ "-" ~ $reputee.user.id;
 
                     if $reputator.user.id != $reputee.user.id and not $redis.exists($redis-key) {
-                        $redis.setex($redis-key, 86400, DateTime.now);
+                        say $redis.setex($redis-key, 86400, DateTime.now);
                         my $reputation = Reputation.^all.grep({ .guild-id == $guild.id && .user-id == $reputee.user.id });
 
                         if $reputation.elems {
